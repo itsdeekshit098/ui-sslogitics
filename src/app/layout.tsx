@@ -14,9 +14,31 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Transport & Logistics | Enterprise Solutions",
+  title: "Sri Srinivasa Secure Logistics (SSLogistics)",
   description:
-    "Premium transport and logistics management for KIA Motors operations.",
+    "Premium transport and operations management by Sri Srinivasa Secure Logistics (SSL). Reliable and secure enterprise logistics solutions.",
+  keywords: [
+    "srisrinivasasecurelogistics",
+    "sri srinivasa secure logistics",
+    "secure logistics",
+    "sslogistics",
+    "sri srinivasa",
+    "ssl",
+    "sstc",
+    "sstcl",
+    "sst",
+    "transport",
+    "transportation",
+    "fleet management",
+    "KIA Motors operations",
+    "KIA logistics partner",
+    "supply chain",
+    "freight transport",
+    "trucking",
+    "commercial vehicles",
+    "logistics management",
+    "logistics company India"
+  ],
 };
 
 export default function RootLayout({
