@@ -15,7 +15,8 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: "Transport & Logistics | Enterprise Solutions",
-  description: "Premium transport and logistics management for KIA Motors operations.",
+  description:
+    "Premium transport and logistics management for KIA Motors operations.",
 };
 
 export default function RootLayout({
@@ -24,12 +25,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
           inter.variable,
-          outfit.variable
+          outfit.variable,
         )}
       >
         {children}
