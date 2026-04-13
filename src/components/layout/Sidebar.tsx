@@ -15,14 +15,29 @@ import {
 } from "lucide-react";
 
 const sidebarItems = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Trip Sheets", href: "/trip-sheets", icon: FileText },
-  { name: "Diesel Records", href: "/diesel-records", icon: Fuel },
-  { name: "Repair Records", href: "/repair-records", icon: Wrench },
-  { name: "Vehicles", href: "/vehicles", icon: Truck },
-  { name: "Drivers", href: "/drivers", icon: Users },
-  { name: "Clients", href: "/clients", icon: Building2 },
-  { name: "Reports", href: "/reports", icon: BarChart3 },
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    enabled: true,
+  },
+  { name: "Vehicles", href: "/vehicles", icon: Truck, enabled: true },
+  { name: "Trip Sheets", href: "/trip-sheets", icon: FileText, enabled: false },
+  {
+    name: "Diesel Records",
+    href: "/diesel-records",
+    icon: Fuel,
+    enabled: false,
+  },
+  {
+    name: "Repair Records",
+    href: "/repair-records",
+    icon: Wrench,
+    enabled: false,
+  },
+  { name: "Drivers", href: "/drivers", icon: Users, enabled: false },
+  { name: "Clients", href: "/clients", icon: Building2, enabled: false },
+  { name: "Reports", href: "/reports", icon: BarChart3, enabled: false },
 ];
 
 interface SidebarProps {
@@ -50,22 +65,42 @@ export function Sidebar({ className, onClose }: SidebarProps) {
         </div>
         <div className="flex-1 overflow-y-auto">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-            {sidebarItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-3 md:py-2 transition-all hover:text-primary active:bg-muted/80",
-                  pathname === item.href
-                    ? "bg-muted text-primary"
-                    : "text-muted-foreground",
-                )}
-              >
-                <item.icon className="h-5 w-5 md:h-4 md:w-4" />
-                <span className="text-base md:text-sm">{item.name}</span>
-              </Link>
-            ))}
+            {sidebarItems.map((item) => {
+              const isActive = pathname === item.href;
+              const isEnabled = item.enabled;
+
+              if (isEnabled) {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onClose}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-3 md:py-2 transition-all hover:text-primary active:bg-muted/80",
+                      isActive
+                        ? "bg-muted text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    <item.icon className="h-5 w-5 md:h-4 md:w-4" />
+                    <span className="text-base md:text-sm">{item.name}</span>
+                  </Link>
+                );
+              }
+
+              return (
+                <div
+                  key={item.href}
+                  className="flex items-center gap-3 rounded-lg px-3 py-3 md:py-2 text-muted-foreground/50 cursor-not-allowed"
+                >
+                  <item.icon className="h-5 w-5 md:h-4 md:w-4" />
+                  <span className="text-base md:text-sm">{item.name}</span>
+                  <span className="ml-auto text-xs bg-muted-foreground/10 px-2 py-1 rounded-full">
+                    Coming Soon
+                  </span>
+                </div>
+              );
+            })}
           </nav>
         </div>
       </div>

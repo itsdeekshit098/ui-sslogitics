@@ -3,7 +3,7 @@
 // styles are isolated as string constants here instead of forced styled-components.
 
 export const DM_DIALOG_CONTENT =
-  "w-[95vw] max-w-[700px] max-h-[85vh] overflow-y-auto";
+  "w-[95vw] max-w-175 max-h-[85vh] overflow-y-auto";
 export const DM_GRID_CONTAINER =
   "grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 py-4";
 export const DM_CARD_CONTAINER =

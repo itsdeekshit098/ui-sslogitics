@@ -19,6 +19,7 @@ const menuItems = [
     icon: Truck,
     color: "text-blue-600",
     bgColor: "bg-blue-100",
+    enabled: true,
   },
   {
     title: "Drivers",
@@ -27,6 +28,7 @@ const menuItems = [
     icon: Users,
     color: "text-green-600",
     bgColor: "bg-green-100",
+    enabled: false,
   },
   {
     title: "Clients",
@@ -35,6 +37,7 @@ const menuItems = [
     icon: Building2,
     color: "text-purple-600",
     bgColor: "bg-purple-100",
+    enabled: false,
   },
   {
     title: "Diesel Records",
@@ -43,6 +46,7 @@ const menuItems = [
     icon: Fuel,
     color: "text-orange-600",
     bgColor: "bg-orange-100",
+    enabled: false,
   },
   {
     title: "Repair Records",
@@ -51,6 +55,7 @@ const menuItems = [
     icon: Wrench,
     color: "text-red-600",
     bgColor: "bg-red-100",
+    enabled: false,
   },
   {
     title: "Trip Sheets",
@@ -59,6 +64,7 @@ const menuItems = [
     icon: FileText,
     color: "text-indigo-600",
     bgColor: "bg-indigo-100",
+    enabled: false,
   },
   {
     title: "Reports",
@@ -67,6 +73,7 @@ const menuItems = [
     icon: BarChart3,
     color: "text-cyan-600",
     bgColor: "bg-cyan-100",
+    enabled: false,
   },
 ];
 
@@ -83,30 +90,64 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
-        {menuItems.map((item) => (
-          <Link key={item.href} href={item.href} className="group block h-full">
-            <Card className="h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-slate-200 active:scale-[0.98]">
+        {menuItems.map((item) => {
+          const isEnabled = item.enabled;
+
+          if (isEnabled) {
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group block h-full"
+              >
+                <Card className="h-full transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-slate-200 active:scale-[0.98]">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 md:p-6 md:pb-2">
+                    <div
+                      className={`p-2 md:p-3 rounded-xl md:rounded-2xl ${item.bgColor}`}
+                    >
+                      <item.icon
+                        className={`h-5 w-5 md:h-6 md:w-6 ${item.color}`}
+                      />
+                    </div>
+                    <ArrowRight className="h-4 w-4 md:h-5 md:w-5 text-slate-300 group-hover:text-slate-600 transition-colors" />
+                  </CardHeader>
+                  <CardContent className="pt-2 p-3 md:p-6 md:pt-4">
+                    <CardTitle className="text-base md:text-xl font-bold text-slate-900 mb-1 md:mb-2 group-hover:text-indigo-600 transition-colors">
+                      {item.title}
+                    </CardTitle>
+                    <p className="text-xs md:text-sm text-slate-500 font-medium hidden sm:block">
+                      {item.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          }
+
+          return (
+            <Card
+              key={item.href}
+              className="h-full opacity-50 cursor-not-allowed border-dashed border-slate-300"
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 md:p-6 md:pb-2">
-                <div
-                  className={`p-2 md:p-3 rounded-xl md:rounded-2xl ${item.bgColor}`}
-                >
-                  <item.icon
-                    className={`h-5 w-5 md:h-6 md:w-6 ${item.color}`}
-                  />
+                <div className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-slate-100">
+                  <item.icon className="h-5 w-5 md:h-6 md:w-6 text-slate-400" />
                 </div>
-                <ArrowRight className="h-4 w-4 md:h-5 md:w-5 text-slate-300 group-hover:text-slate-600 transition-colors" />
+                <div className="text-xs bg-slate-100 px-2 py-1 rounded-full text-slate-500 font-medium">
+                  Coming Soon
+                </div>
               </CardHeader>
               <CardContent className="pt-2 p-3 md:p-6 md:pt-4">
-                <CardTitle className="text-base md:text-xl font-bold text-slate-900 mb-1 md:mb-2 group-hover:text-indigo-600 transition-colors">
+                <CardTitle className="text-base md:text-xl font-bold text-slate-400 mb-1 md:mb-2">
                   {item.title}
                 </CardTitle>
-                <p className="text-xs md:text-sm text-slate-500 font-medium hidden sm:block">
+                <p className="text-xs md:text-sm text-slate-400 font-medium hidden sm:block">
                   {item.description}
                 </p>
               </CardContent>
             </Card>
-          </Link>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

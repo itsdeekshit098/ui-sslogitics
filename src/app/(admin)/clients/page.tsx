@@ -279,7 +279,7 @@ export default function ClientsPage() {
       </Card>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="w-[95vw] max-w-[425px]">
+        <DialogContent className="w-[95vw] max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Client</DialogTitle>
             <DialogDescription>

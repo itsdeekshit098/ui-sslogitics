@@ -21,6 +21,7 @@ import {
   Save,
   Van,
   FolderOpen,
+  Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,6 +86,10 @@ export default function VehiclesPage() {
   // Document Modal State
   const [isDocOpen, setIsDocOpen] = useState(false);
   const [docVehicle, setDocVehicle] = useState<Vehicle | null>(null);
+
+  // Delete Modal State
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deletingVehicle, setDeletingVehicle] = useState<Vehicle | null>(null);
 
   // Function to actively reload logic easily
   const fetchVehiclesRefetch = async () => {
@@ -160,6 +165,38 @@ export default function VehiclesPage() {
     }
   };
 
+  const handleDeleteClick = (vehicle: Vehicle) => {
+    setDeletingVehicle(vehicle);
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteVehicle = async () => {
+    if (!deletingVehicle) return;
+
+    try {
+      const res = await fetch(`/api/vehicles?id=${deletingVehicle.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Error deleting vehicle:", errorData);
+        alert(`Failed to delete vehicle: ${errorData.error || res.statusText}`);
+        return;
+      }
+
+      // Remove vehicle from local state
+      setVehicles((prev) => prev.filter((v) => v.id !== deletingVehicle.id));
+
+      alert("Vehicle deleted successfully!");
+      setIsDeleteOpen(false);
+      setDeletingVehicle(null);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      alert("Unexpected error deleting vehicle.");
+    }
+  };
+
   return (
     <div className={CA_VEHICLES_CONTAINER}>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -169,7 +206,7 @@ export default function VehiclesPage() {
             Manage your fleet of buses, cars, and trucks.
           </p>
         </div>
-        <Button asChild>
+        <Button className="w-full md:w-auto" asChild>
           <Link href="/vehicles/new">
             <Plus className="mr-2 h-4 w-4" /> Add Vehicle
           </Link>
@@ -327,6 +364,17 @@ export default function VehiclesPage() {
                     >
                       Edit
                     </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="text-xs h-8 px-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(vehicle);
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
                 </div>
               ))
@@ -415,13 +463,22 @@ export default function VehiclesPage() {
                         </Button>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditClick(vehicle)}
-                        >
-                          Edit
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditClick(vehicle)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteClick(vehicle)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -434,7 +491,7 @@ export default function VehiclesPage() {
 
       {/* Edit Vehicle Modal */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="w-[95vw] max-w-[700px] max-h-[85vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-175 max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Vehicle</DialogTitle>
             <DialogDescription>
@@ -538,6 +595,50 @@ export default function VehiclesPage() {
               <Save className="mr-2 h-4 w-4" /> Save changes
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="max-w-md">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <div className="rounded-full bg-red-100 p-3">
+              <Trash2 className="h-6 w-6 text-red-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Delete Vehicle
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Are you sure you want to delete this vehicle? This action cannot
+                be undone.
+              </p>
+            </div>
+            {deletingVehicle && (
+              <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md w-full">
+                <p className="font-medium">{deletingVehicle.vehicle_number}</p>
+                <p className="text-gray-600">
+                  {deletingVehicle.company} {deletingVehicle.model}
+                </p>
+              </div>
+            )}
+            <div className="flex gap-3 w-full">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setIsDeleteOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={handleDeleteVehicle}
+              >
+                Delete Vehicle
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
