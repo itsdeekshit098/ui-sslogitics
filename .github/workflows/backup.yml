@@ -37,7 +37,7 @@ jobs:
           echo "Starting pg_dump..."
           # Using --no-owner to avoid ownership issues upon restoring
           # Using --clean to add DROP TABLE commands
-          pg_dump "$SUPABASE_DB_URL" --no-owner --clean > db-backup.sql
+          /usr/lib/postgresql/17/bin/pg_dump "$SUPABASE_DB_URL" --no-owner --clean > db-backup.sql
           echo "Database dump completed."
 
       - name: Install Node Dependencies

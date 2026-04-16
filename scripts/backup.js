@@ -26,18 +26,39 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 async function downloadFolder(bucketName, folderPath = '') {
   console.log(`Listing files in ${bucketName}/${folderPath || '<root>'}`);
   
-  const { data: files, error } = await supabase.storage.from(bucketName).list(folderPath);
+  let allFiles = [];
+  let currentOffset = 0;
+  const limit = 1000;
 
-  if (error) {
-    console.error('Error listing files:', error);
+  while (true) {
+    const { data: files, error } = await supabase.storage.from(bucketName).list(folderPath, {
+      limit: limit,
+      offset: currentOffset
+    });
+
+    if (error) {
+      console.error('Error listing files:', error);
+      return;
+    }
+
+    if (!files || files.length === 0) {
+      break;
+    }
+
+    allFiles.push(...files);
+
+    if (files.length < limit) {
+      break;
+    }
+
+    currentOffset += limit;
+  }
+
+  if (allFiles.length === 0) {
     return;
   }
 
-  if (!files || files.length === 0) {
-    return;
-  }
-
-  for (const file of files) {
+  for (const file of allFiles) {
     const fullPath = folderPath ? `${folderPath}/${file.name}` : file.name;
 
     // If there is no metadata, Supabase treats it as a folder representation
