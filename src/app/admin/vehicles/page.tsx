@@ -93,6 +93,7 @@ export default function VehiclesPage() {
     getDefaultVehicleFormData(),
   );
   const [editErrors, setEditErrors] = useState<{ vehicle_number?: string; vehicle_type?: string }>({});
+  const [editSubmitError, setEditSubmitError] = useState<string | null>(null);
 
   // Document Modal State
   const [isDocOpen, setIsDocOpen] = useState(false);
@@ -137,6 +138,7 @@ export default function VehiclesPage() {
       tax_url: vehicle.tax_url || "",
     });
     setEditErrors({});
+    setEditSubmitError(null);
     setIsEditOpen(true);
   };
 
@@ -166,18 +168,26 @@ export default function VehiclesPage() {
     }
     setEditErrors({});
 
+    setEditSubmitError(null);
     setIsSaving(true);
+
+    const payload = {
+      id: editingVehicle.id,
+      ...editFormData,
+      last_service_date: editFormData.last_service_date ? editFormData.last_service_date : null
+    };
+
     try {
       const res = await fetch("/api/vehicles", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: editingVehicle.id, ...editFormData }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         const errorData = await res.json();
         console.error("Error updating vehicle:", errorData);
-        alert(`Failed to update vehicle: ${errorData.error || res.statusText}`);
+        setEditSubmitError(`Failed to update vehicle: ${errorData.error || res.statusText}`);
         return;
       }
 
@@ -192,7 +202,7 @@ export default function VehiclesPage() {
       setIsEditOpen(false);
     } catch (error) {
       console.error("Unexpected error:", error);
-      alert("Unexpected error updating vehicle.");
+      setEditSubmitError("Unexpected error updating vehicle.");
     } finally {
       setIsSaving(false);
     }
@@ -559,6 +569,11 @@ export default function VehiclesPage() {
               you&apos;re done.
             </DialogDescription>
           </DialogHeader>
+          {editSubmitError && (
+             <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm mb-2 border border-red-100">
+                 {editSubmitError}
+             </div>
+          )}
           <div className="grid gap-4 py-4">
             <div className={CA_MODAL_GRID}>
               <div className={CA_MODAL_LABEL_SPACE}>

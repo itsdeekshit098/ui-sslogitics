@@ -29,6 +29,7 @@ const CreateVehicleForm: React.FC<{
 }> = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState(getDefaultVehicleFormData());
   const [errors, setErrors] = useState<{ vehicle_number?: string; vehicle_type?: string }>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleClose = useCallback(() => {
@@ -79,15 +80,21 @@ const CreateVehicleForm: React.FC<{
       return;
     }
     setErrors({});
-
+    setSubmitError(null);
     setLoading(true);
+
+    const payload = {
+      ...formData,
+      last_service_date: formData.last_service_date ? formData.last_service_date : null
+    };
+
     try {
       const response = await fetch("/api/vehicles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -97,14 +104,12 @@ const CreateVehicleForm: React.FC<{
       } else {
         const errorData = await response.json();
         console.error("Failed to save vehicle", errorData);
-        alert(`Failed to save vehicle: ${errorData.error || response.statusText}`);
+        setSubmitError(`Failed to save vehicle: ${errorData.error || response.statusText}`);
         setLoading(false);
       }
     } catch (error: unknown) {
       console.error("Error saving vehicle:", error);
-      alert(
-        `Error saving vehicle: ${error instanceof Error ? error.message : String(error)}`
-      );
+      setSubmitError(`Error saving vehicle: ${error instanceof Error ? error.message : String(error)}`);
       setLoading(false);
     }
   };
@@ -134,6 +139,11 @@ const CreateVehicleForm: React.FC<{
 
         {/* Scrollable Form Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          {submitError && (
+             <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm mb-2 border border-red-100">
+                 {submitError}
+             </div>
+          )}
           <div className="space-y-4">
             <div className={CA_MODAL_GRID}>
               <div className={CA_MODAL_LABEL_SPACE}>
