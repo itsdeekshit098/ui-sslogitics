@@ -92,6 +92,7 @@ export default function VehiclesPage() {
   const [editFormData, setEditFormData] = useState<Omit<Vehicle, "id">>(
     getDefaultVehicleFormData(),
   );
+  const [editErrors, setEditErrors] = useState<{ vehicle_number?: string; vehicle_type?: string }>({});
 
   // Document Modal State
   const [isDocOpen, setIsDocOpen] = useState(false);
@@ -135,6 +136,7 @@ export default function VehiclesPage() {
       pollution_url: vehicle.pollution_url || "",
       tax_url: vehicle.tax_url || "",
     });
+    setEditErrors({});
     setIsEditOpen(true);
   };
 
@@ -149,6 +151,20 @@ export default function VehiclesPage() {
 
   const handleUpdateVehicle = async () => {
     if (!editingVehicle) return;
+
+    const newErrors: { vehicle_number?: string; vehicle_type?: string } = {};
+    if (!editFormData.vehicle_number || editFormData.vehicle_number.trim() === "") {
+      newErrors.vehicle_number = "Vehicle Number is required";
+    }
+    if (!editFormData.vehicle_type || editFormData.vehicle_type.trim() === "") {
+      newErrors.vehicle_type = "Vehicle Type is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setEditErrors(newErrors);
+      return;
+    }
+    setEditErrors({});
 
     setIsSaving(true);
     try {
@@ -546,22 +562,28 @@ export default function VehiclesPage() {
           <div className="grid gap-4 py-4">
             <div className={CA_MODAL_GRID}>
               <div className={CA_MODAL_LABEL_SPACE}>
-                <Label htmlFor="vehicle_number">Vehicle Number</Label>
+                <Label htmlFor="vehicle_number">Vehicle Number <span className="text-red-500">*</span></Label>
                 <Input
                   id="vehicle_number"
                   value={editFormData.vehicle_number}
-                  onChange={handleEditChange}
+                  onChange={(e) => {
+                    handleEditChange(e);
+                    if (editErrors.vehicle_number) setEditErrors(prev => ({...prev, vehicle_number: undefined}));
+                  }}
+                  className={editErrors.vehicle_number ? "border-red-500 focus-visible:ring-red-500" : ""}
                 />
+                {editErrors.vehicle_number && <p className="text-xs text-red-500 mt-1">{editErrors.vehicle_number}</p>}
               </div>
               <div className={CA_MODAL_LABEL_SPACE}>
-                <Label htmlFor="vehicle_type">Vehicle Type</Label>
+                <Label htmlFor="vehicle_type">Vehicle Type <span className="text-red-500">*</span></Label>
                 <Select
                   value={editFormData.vehicle_type}
-                  onValueChange={(value) =>
-                    handleEditSelectChange("vehicle_type", value)
-                  }
+                  onValueChange={(value) => {
+                    handleEditSelectChange("vehicle_type", value);
+                    if (editErrors.vehicle_type) setEditErrors(prev => ({...prev, vehicle_type: undefined}));
+                  }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={editErrors.vehicle_type ? "border-red-500 focus:ring-red-500" : ""}>
                     <SelectValue placeholder="Select Type" />
                   </SelectTrigger>
                   <SelectContent>

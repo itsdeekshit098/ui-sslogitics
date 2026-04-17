@@ -28,6 +28,7 @@ const CreateVehicleForm: React.FC<{
   onSuccess: () => void | Promise<void>;
 }> = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState(getDefaultVehicleFormData());
+  const [errors, setErrors] = useState<{ vehicle_number?: string; vehicle_type?: string }>({});
   const [loading, setLoading] = useState(false);
 
   const handleClose = useCallback(() => {
@@ -65,10 +66,19 @@ const CreateVehicleForm: React.FC<{
   };
 
   const handleSubmit = async () => {
-    if (!formData.vehicle_number || !formData.vehicle_type) {
-      alert("Please provide the vehicle number and type.");
+    const newErrors: { vehicle_number?: string; vehicle_type?: string } = {};
+    if (!formData.vehicle_number || formData.vehicle_number.trim() === "") {
+      newErrors.vehicle_number = "Vehicle Number is required";
+    }
+    if (!formData.vehicle_type || formData.vehicle_type.trim() === "") {
+      newErrors.vehicle_type = "Vehicle Type is required";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+    setErrors({});
 
     setLoading(true);
     try {
@@ -132,16 +142,24 @@ const CreateVehicleForm: React.FC<{
                   id="vehicle_number"
                   placeholder="AP 02 AB 1234"
                   value={formData.vehicle_number}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    handleChange(e);
+                    if (errors.vehicle_number) setErrors(prev => ({...prev, vehicle_number: undefined}));
+                  }}
+                  className={errors.vehicle_number ? "border-red-500 focus-visible:ring-red-500" : ""}
                 />
+                {errors.vehicle_number && <p className="text-xs text-red-500 mt-1">{errors.vehicle_number}</p>}
               </div>
               <div className={CA_MODAL_LABEL_SPACE}>
                 <Label htmlFor="vehicle_type">Vehicle Type <span className="text-red-500">*</span></Label>
                 <Select
                   value={formData.vehicle_type}
-                  onValueChange={(val) => handleSelectChange("vehicle_type", val)}
+                  onValueChange={(val) => {
+                    handleSelectChange("vehicle_type", val);
+                    if (errors.vehicle_type) setErrors(prev => ({...prev, vehicle_type: undefined}));
+                  }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={errors.vehicle_type ? "border-red-500 focus:ring-red-500" : ""}>
                     <SelectValue placeholder="Select Type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -151,6 +169,7 @@ const CreateVehicleForm: React.FC<{
                     <SelectItem value="Truck">Truck</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.vehicle_type && <p className="text-xs text-red-500 mt-1">{errors.vehicle_type}</p>}
               </div>
             </div>
 
