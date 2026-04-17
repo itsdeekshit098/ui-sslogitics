@@ -59,7 +59,7 @@ export function DocumentModal({ isOpen, onClose, vehicle, onUpdate }: DocumentMo
         const file = e.target.files[0];
 
         setErrorMsg(null);
-        setLoadingFields(prev => [...prev, documentType]);
+        setLoadingFields(prev => prev.includes(documentType) ? prev : [...prev, documentType]);
 
         try {
             const formData = new FormData();
@@ -104,7 +104,7 @@ export function DocumentModal({ isOpen, onClose, vehicle, onUpdate }: DocumentMo
         setErrorMsg(null);
         const { key: documentType, url: fileUrl } = deleteDocTarget;
         setDeleteDocTarget(null);
-        setLoadingFields(prev => [...prev, documentType]);
+        setLoadingFields(prev => prev.includes(documentType) ? prev : [...prev, documentType]);
         try {
             const res = await fetch("/api/vehicles/documents", {
                 method: "DELETE",
