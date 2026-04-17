@@ -35,7 +35,7 @@ interface DocumentApiResponse {
 }
 
 export function DocumentModal({ isOpen, onClose, vehicle, onUpdate }: DocumentModalProps) {
-    const [loadingField, setLoadingField] = useState<string | null>(null);
+    const [loadingFields, setLoadingFields] = useState<string[]>([]);
     const [localVehicle, setLocalVehicle] = useState<Vehicle | null>(null);
     const [deleteDocTarget, setDeleteDocTarget] = useState<{ key: string; url: string } | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export function DocumentModal({ isOpen, onClose, vehicle, onUpdate }: DocumentMo
         const file = e.target.files[0];
 
         setErrorMsg(null);
-        setLoadingField(documentType);
+        setLoadingFields(prev => [...prev, documentType]);
 
         try {
             const formData = new FormData();
@@ -88,12 +88,12 @@ export function DocumentModal({ isOpen, onClose, vehicle, onUpdate }: DocumentMo
                 setLocalVehicle(prev => prev ? { ...prev, [documentType]: resData.url } as Vehicle : null);
             }
 
-            onUpdate(); // Trigger parent refetch in the background
+            onUpdate(documentType, resData.url); // Pass updated info strictly instead of full refetch
         } catch (error: unknown) {
             console.error("Upload error:", error);
             setErrorMsg(`Upload failed: ${error instanceof Error ? error.message : String(error)}`);
         } finally {
-            setLoadingField(null);
+            setLoadingFields(prev => prev.filter(key => key !== documentType));
             e.target.value = ''; // Reset input
         }
     };
@@ -104,7 +104,7 @@ export function DocumentModal({ isOpen, onClose, vehicle, onUpdate }: DocumentMo
         setErrorMsg(null);
         const { key: documentType, url: fileUrl } = deleteDocTarget;
         setDeleteDocTarget(null);
-        setLoadingField(documentType);
+        setLoadingFields(prev => [...prev, documentType]);
         try {
             const res = await fetch("/api/vehicles/documents", {
                 method: "DELETE",
@@ -129,12 +129,12 @@ export function DocumentModal({ isOpen, onClose, vehicle, onUpdate }: DocumentMo
             // Clean the UI up instantly so the 'Upload' button returns immediately
             setLocalVehicle(prev => prev ? { ...prev, [documentType]: null } as Vehicle : null);
 
-            onUpdate();
+            onUpdate(documentType, null);
         } catch (error: unknown) {
             console.error("Delete error:", error);
             setErrorMsg(`Delete failed: ${error instanceof Error ? error.message : String(error)}`);
         } finally {
-            setLoadingField(null);
+            setLoadingFields(prev => prev.filter(key => key !== documentType));
         }
     };
 
@@ -160,7 +160,7 @@ export function DocumentModal({ isOpen, onClose, vehicle, onUpdate }: DocumentMo
                 <div className={DM_GRID_CONTAINER}>
                     {docTypes.map((doc) => {
                         const url = localVehicle[doc.key as keyof Vehicle] as string | undefined;
-                        const isLoading = loadingField === doc.key;
+                        const isLoading = loadingFields.includes(doc.key);
 
                         return (
                             <div key={doc.key} className={DM_CARD_CONTAINER}>
@@ -208,12 +208,12 @@ export function DocumentModal({ isOpen, onClose, vehicle, onUpdate }: DocumentMo
 
             <ConfirmModal
                 isOpen={!!deleteDocTarget}
-                onClose={() => !loadingField && setDeleteDocTarget(null)}
+                onClose={() => (!deleteDocTarget || !loadingFields.includes(deleteDocTarget.key)) && setDeleteDocTarget(null)}
                 onConfirm={executeDelete}
                 title="Delete Document"
                 description="Are you sure you want to delete this document? This action cannot be undone."
                 confirmText="Delete"
-                isLoading={loadingField !== null}
+                isLoading={!!deleteDocTarget && loadingFields.includes(deleteDocTarget.key)}
             />
         </Dialog>
     );

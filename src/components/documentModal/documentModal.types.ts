@@ -4,5 +4,5 @@ export interface DocumentModalProps {
     isOpen: boolean;
     onClose: () => void;
     vehicle: Vehicle | null;
-    onUpdate: () => void;
+    onUpdate: (documentType?: string, newUrl?: string | null) => void;
 }

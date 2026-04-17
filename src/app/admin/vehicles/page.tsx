@@ -704,7 +704,20 @@ export default function VehiclesPage() {
         isOpen={isDocOpen}
         onClose={() => setIsDocOpen(false)}
         vehicle={docVehicle}
-        onUpdate={fetchVehiclesRefetch}
+        onUpdate={(documentType, newUrl) => {
+          if (documentType && docVehicle) {
+            setVehicles((prev) =>
+              prev.map((v) =>
+                v.id === docVehicle.id
+                  ? { ...v, [documentType]: newUrl || "" }
+                  : v,
+              ),
+            );
+            setDocVehicle((prev) => prev ? { ...prev, [documentType]: newUrl || "" } : null);
+          } else {
+            fetchVehiclesRefetch();
+          }
+        }}
       />
 
       {/* Create Vehicle Modal */}
