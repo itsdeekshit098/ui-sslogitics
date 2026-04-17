@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Truck,
@@ -9,6 +10,7 @@ import {
   FileText,
   BarChart3,
   ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
 
 const menuItems = [
@@ -80,6 +82,14 @@ const menuItems = [
 export default function DashboardPage() {
   return (
     <div className="container mx-auto px-4 py-4 md:p-8 space-y-6 md:space-y-8">
+      <div className="mb-2">
+        <Button variant="ghost" className="w-fit -ml-2 text-muted-foreground hover:text-foreground" asChild>
+          <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
       <div>
         <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-slate-900">
           Dashboard
